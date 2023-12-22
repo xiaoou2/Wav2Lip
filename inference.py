@@ -2,6 +2,8 @@ from os import listdir, path
 import numpy as np
 import scipy, cv2, os, sys, argparse, audio
 import json, subprocess, random, string
+
+import ffmpeg
 from tqdm import tqdm
 from glob import glob
 import torch, face_detection
@@ -177,6 +179,12 @@ def load_model(path):
 
 	model = model.to(device)
 	return model.eval()
+def merge():
+	audio = ffmpeg.input(f'temp/result.avi')
+	video = ffmpeg.input(f'temp/temp.wav')
+	print("合并视音频")
+	out = ffmpeg.output(video, audio, f'temp/compound.mp4')
+	out.run()
 
 def main():
 	if not os.path.isfile(args.face):
@@ -275,6 +283,6 @@ def main():
 
 	command = 'ffmpeg -y -i {} -i {} -strict -2 -q:v 1 {}'.format(args.audio, 'temp/result.avi', args.outfile)
 	subprocess.call(command, shell=platform.system() != 'Windows')
-
+	merge()
 if __name__ == '__main__':
 	main()
